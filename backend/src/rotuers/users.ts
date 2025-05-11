@@ -6,11 +6,13 @@ import { usermodel } from "../db";
 import Jwt from "jsonwebtoken" 
 import { middleware } from "../middleware";
 const jwt_password = "won'ttellyoubabe"
+import dotenv from "dotenv";
+dotenv.config();
 
 
 export const users = Router()
 
-mongoose.connect("mongodb+srv://admin69:iwillfucktheworld@cluster0.w2yaa.mongodb.net/paytm")
+mongoose.connect(process.env.MONGO_URL!) //non-null assertion operator
 
 users.post("/signup" , async (req , res)=>{
     
@@ -59,19 +61,21 @@ users.post("/login" , async (req,res)=>{
 
     //  console.log("your data", existinguser[0]._id)
 
-     if(existinguser){
+ 
+        try {
+            const token = Jwt.sign({id: existinguser[0]._id } , jwt_password) 
+            res.json({
+                message:"you're logged in ",
+                your_token :token
+            }) 
+            
+        } catch (error) {
+            res.json({
+                message:"there is error try again"
+            })
+        }
      
-        const token = Jwt.sign({id: existinguser[0]._id } , jwt_password) 
-        res.json({
-            message:"you're logged in ",
-            your_token :token
-        }) 
-     }else{
-        res.status(403).json({
-            message:"error while log-in ...please try again ",
-
-        })
-     }
+     
 
 })
 
